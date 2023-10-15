@@ -8,7 +8,7 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/teacher', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb+srv://meetgoti07:Itsmg.07@cluster0.nr24cb3.mongodb.net/attendance/teacher', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const ClassSchema = new mongoose.Schema({
     value: String,
@@ -47,6 +47,8 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(3005, () => {
+const PORT = process.env.PORT || 5002;
+
+server.listen(PORT, () => {
     console.log('listening on *:3005');
 });
