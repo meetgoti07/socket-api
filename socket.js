@@ -29,23 +29,25 @@ io.on('connection', (socket) => {
     });
 
     // Event to send data to all students of a specific class (based on the provided batch)
-    socket.on('sendMessageToClass', async ({ batch, data }) => {
-        const classData = await Class.findOne({ value: batch });
+socket.on('sendMessageToClass', async ({ batch, data }) => {
+    const classData = await Class.findOne({ value: batch });
 
-        if(classData && classData.students && classData.students.length > 0) {
-            classData.students.rollno.forEach(studentRollNumber => {
-                io.to(studentRollNumber).emit('receiveMessage', data);
-            });
-            console.log(`Data sent to students of batch ${batch}.`);
-        } else {
-            console.log(`No students found for batch ${batch} or batch not found.`);
-        }
-    });
-
-    socket.on('disconnect', () => {
-        console.log('A user disconnected');
-    });
+    if (classData && classData.students && classData.students.length > 0) {
+        classData.students.forEach(student => {
+            if (student.rollno) {
+                io.to(student.rollno).emit('receiveMessage', data);
+            }
+        });
+        console.log(`Data sent to students of batch ${batch}.`);
+    } else {
+        console.log(`No students found for batch ${batch} or batch not found.`);
+    }
 });
+
+socket.on('disconnect', () => {
+    console.log('A user disconnected');
+});
+
 
 const PORT = process.env.PORT || 5002;
 
