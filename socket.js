@@ -10,9 +10,14 @@ const io = socketIo(server);
 // Connect to MongoDB
 mongoose.connect('mongodb+srv://meetgoti07:Itsmg.07@cluster0.nr24cb3.mongodb.net/teacher', { useNewUrlParser: true, useUnifiedTopology: true });
 
+const StudentSchema = new mongoose.Schema({
+    rollno: String,
+    expoToken: String
+});
+
 const ClassSchema = new mongoose.Schema({
     value: String,
-    students: [String]
+    students: [StudentSchema]
 });
 
 const Class = mongoose.model('Class', ClassSchema, 'class');
@@ -29,28 +34,28 @@ io.on('connection', (socket) => {
     });
 
     // Event to send data to all students of a specific class (based on the provided batch)
-socket.on('sendMessageToClass', async ({ batch, data }) => {
-    const classData = await Class.findOne({ value: batch });
+    socket.on('sendMessageToClass', async ({ batch, data }) => {
+        const classData = await Class.findOne({ value: batch });
 
-    if (classData && classData.students && classData.students.length > 0) {
-        classData.students.forEach(student => {
-            if (student.rollno) {
-                io.to(student.rollno).emit('receiveMessage', data);
-            }
-        });
-        console.log(`Data sent to students of batch ${batch}.`);
-    } else {
-        console.log(`No students found for batch ${batch} or batch not found.`);
-    }
+        if (classData && classData.students && classData.students.length > 0) {
+            classData.students.forEach(student => {
+                if (student.rollno) {
+                    io.to(student.rollno).emit('receiveMessage', data);
+                }
+            });
+            console.log(`Data sent to students of batch ${batch}.`);
+        } else {
+            console.log(`No students found for batch ${batch} or batch not found.`);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log('A user disconnected');
+    });
 });
-
-socket.on('disconnect', () => {
-    console.log('A user disconnected');
-});
-
 
 const PORT = process.env.PORT || 5002;
 
 server.listen(PORT, () => {
-    console.log('listening on *:3005');
+    console.log(`listening on *:${PORT}`);
 });
