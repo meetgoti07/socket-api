@@ -33,7 +33,7 @@ io.on('connection', (socket) => {
         const classData = await Class.findOne({ value: batch });
 
         if(classData && classData.students && classData.students.length > 0) {
-            classData.students.forEach(studentRollNumber => {
+            classData.students.rollno.forEach(studentRollNumber => {
                 io.to(studentRollNumber).emit('receiveMessage', data);
             });
             console.log(`Data sent to students of batch ${batch}.`);
